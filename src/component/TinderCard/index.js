@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
       width: '100%',
       height: '100%',
       borderRadius: 10,
+      backgroundColor: '#fefefe',
   
       shadowColor: "#000",
       //use for ios
@@ -47,7 +48,6 @@ const styles = StyleSheet.create({
       height: '100%',
       borderRadius: 10,
       overflow: 'hidden',
-  
       justifyContent: 'flex-end',
     },
     name: {

@@ -1,9 +1,11 @@
 import React from "react";
-import 'react-native-gesture-handler';
 import {View, StyleSheet} from 'react-native';
+import Card from '../component/TinderCard'
+import users from '../../assets/data/users.js'
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import MatchSrceen from "./src/Srceens/MatchSrceen";
+
+import AnimatedStack from "../component/AnimatedStack";
 
 
 // const jeff={
@@ -12,11 +14,23 @@ import MatchSrceen from "./src/Srceens/MatchSrceen";
 //   image: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg'
 // }
 
-const App = () => {
+const HomeSrceen = () => {
 
+const onSwipeLeft = (user) => {
+  console.warn("swipeleft: ", user.name)
+};
+
+const onSwipeRight = (user) => {
+  console.warn("swiperight: ", user.name)
+};
   return (
     <GestureHandlerRootView style={styles.pageContainer}>
-     <MatchSrceen />
+     <AnimatedStack
+     data={users}
+     renderItem={(({item}) => <Card user={item} />)}
+     onSwipeLeft={onSwipeLeft}
+     onSwipeRight={onSwipeRight}
+     />
     </GestureHandlerRootView>
     );
 };
@@ -26,7 +40,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+    width: '100%'
   },
 });
 
-export default App;
+export default HomeSrceen;
