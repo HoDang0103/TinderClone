@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Profiler, useState } from "react";
 import 'react-native-gesture-handler';
 import {View, StyleSheet, SafeAreaView ,Text, Pressable} from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -8,10 +8,15 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 
+import Amplify from 'aws-amplify';
+import { withAuthenticator } from 'aws-amplify-react-native';
+import config from './src/aws-exports'
+
 import MatchSrceen from "./src/Srceens/MatchSrceen";
 import HomeScreen from './src/Srceens/HomeSrceen'
+import ProfileScreen from "./src/Srceens/ProfileScreen";
 
-
+Amplify.configure(config);
 
 // const jeff={
 //   name: 'Jeff',
@@ -47,15 +52,16 @@ const App = () => {
               size={24}
               color={activeScreen === 'CHAT' ? activeColor : color}/> 
           </Pressable>
-          <Pressable onPress={() => setActiveScreen('USER')}>
+          <Pressable onPress={() => setActiveScreen('PROFILE')}>
             <FontAwesome
               name="user"
               size={24}
-              color={activeScreen === 'USER' ? activeColor : color}/>
+              color={activeScreen === 'PROFILE' ? activeColor : color}/>
           </Pressable>
         </View>
           {activeScreen === 'HOME' && <HomeScreen/>}
           {activeScreen === 'CHAT' && <MatchSrceen/>}
+          {activeScreen === 'PROFILE' && <ProfileScreen/> }
       </GestureHandlerRootView>
     </SafeAreaView>
     );
@@ -78,4 +84,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default App;
+export default withAuthenticator(App);
