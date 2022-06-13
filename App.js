@@ -42,7 +42,7 @@ const App = () => {
 
   useEffect(() => {
 
-    const listener = Hub.listen("datastore", async hubData => {
+    const listener = Hub.listen("DataStore", async hubData => {
       const  { event, data } = hubData.payload;
       if (event === 'modelSynced' && data?.model?.name === 'User') {
         console.log('User Model has finish syncing');
@@ -62,6 +62,7 @@ const App = () => {
   }, []);
 
   const renderPage = () => {
+    // console.log(isUserLoading)
     // if(isUserLoading) {
     //   return <ActivityIndicator style={{flex: 1}} />;
     // }

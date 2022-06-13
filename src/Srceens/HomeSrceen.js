@@ -75,9 +75,8 @@ const HomeSrceen = ({isUserLoading}) => {
       let fetchedUsers = await DataStore.query(User, user => 
         user.gender('eq', me.lookingFor), 
       );
-      fetchedUsers = fetchedUsers.filter(u => !matchesIds.includes(u.id));
-      setUsers(fetchedUsers
-        );
+      fetchedUsers = fetchedUsers.filter(u => !matchesIds.includes(u.id) && u.id !== me.id);
+      setUsers(fetchedUsers);
     }; 
     fetchUsers();
   }, [isUserLoading, me])

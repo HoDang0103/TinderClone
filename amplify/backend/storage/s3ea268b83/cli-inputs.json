@@ -1,0 +1,15 @@
+{
+  "resourceName": "s3ea268b83",
+  "policyUUID": "ea268b83",
+  "bucketName": "tindercloneab0d4cdeecab45e9818d81b021ed3483",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

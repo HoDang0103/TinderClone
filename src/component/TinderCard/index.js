@@ -1,11 +1,19 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, ImageBackground, StyleSheet} from 'react-native';
-
+import { Storage } from 'aws-amplify';
 const Card = (props) => {
     const {name, image, bio, gender} = props.user
+    const [imageUrl, setImageUrl] = useState(image);
+
+    useEffect(() =>{
+      if(!image?.startsWith('http')){
+        Storage.get(image).then(setImageUrl);
+      }
+    },[image]); 
+
     return(
         <View style={styles.card}>
-            <ImageBackground source={{uri: image}}
+            <ImageBackground source={{uri: imageUrl}}
             style={styles.image}
             >
                 <View style={styles.cardInner}>
