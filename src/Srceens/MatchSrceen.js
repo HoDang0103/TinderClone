@@ -99,7 +99,7 @@ const MatchSrceen = () => {
                 }
                 return(
                     <View style={styles.user} key={match.id}>
-                        <Image style={styles.image} resizeMode='contain' source={matchUser.image}/>
+                        <Image style={styles.image} resizeMode='contain' source={{uri: matchUser.image}}/>
                         <Text style={styles.name}>{matchUser.name}</Text>
                     </View>
                 );

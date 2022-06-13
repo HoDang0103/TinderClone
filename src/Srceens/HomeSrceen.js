@@ -22,6 +22,7 @@ import AnimatedStack from "../component/AnimatedStack";
 
 const HomeSrceen = ({isUserLoading}) => {
   const [users,setUsers] = useState([]);
+  const [matchesIds, setMatchesIds] = useState([]);
   const [curentUser, setCurrentUser] = useState(null);
   const [me,setMe] = useState(null);
 
@@ -31,6 +32,7 @@ const HomeSrceen = ({isUserLoading}) => {
 
         const dbUsers = await DataStore.query(
             User,
+            // u => u.sub('eq', '6'),
             u => u.sub('eq', authUser.attributes.sub),
         );
         if(!dbUsers || dbUsers.lenght === 0){
@@ -42,15 +44,43 @@ const HomeSrceen = ({isUserLoading}) => {
   },[isUserLoading])
 
   useEffect(() => {
-    // if(isUserLoading){
-    //   return;
-    // }
+    if(!me){
+        return;
+    }
+
+    let isMounted = true;
+
+    const fetchMatches = async () => {
+        const result = await DataStore.query(Match,
+            // match => match.user1Id('eq', me.id).user2Id('eq',me.id)
+            m => m
+                .isMatch('eq',true)
+                .or(m1 => m1.user1Id('eq', me.id).user2Id('eq',me.id)),    
+        );
+        if (isMounted){
+            setMatchesIds(result.map(match =>
+              match.user1Id === me.id ? match.user2Id : match.user1Id,
+            ));
+        }
+    };
+    fetchMatches();
+    return () => { isMounted = false;}
+}, [me])
+
+  useEffect(() => {
+    if(!matchesIds){
+      return;
+    }
     const fetchUsers = async () => {
-      const fetchedUsers = await DataStore.query(User);
-      setUsers(fetchedUsers);
+      let fetchedUsers = await DataStore.query(User, user => 
+        user.gender('eq', me.lookingFor), 
+      );
+      fetchedUsers = fetchedUsers.filter(u => !matchesIds.includes(u.id));
+      setUsers(fetchedUsers
+        );
     }; 
     fetchUsers();
-  }, [isUserLoading])
+  }, [isUserLoading, me])
 
   const onSwipeLeft = () => {
     if(!curentUser || !me){
@@ -67,7 +97,7 @@ const HomeSrceen = ({isUserLoading}) => {
     const myMatches = await DataStore.query(Match, match => 
       match.user1Id('eq', me.id).user2Id('eq',curentUser.id),
     );
-    console.warn("myMatches: ",myMatches.length);
+    // console.warn("myMatches: ",myMatches.length);
 
     if(myMatches.length > 0){
       console.warn('You already swiped right to this user');
