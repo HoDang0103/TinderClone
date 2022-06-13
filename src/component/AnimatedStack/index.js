@@ -27,7 +27,7 @@ const SWIPE_VELOCITY = 800;
 
 const AnimatedStack = (props) => {
 
-    const { data, renderItem, onSwipeRight, onSwipeLeft } = props;
+  const { data, renderItem, onSwipeRight, onSwipeLeft, setCurrentUser} = props;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currentIndex + 1);
@@ -106,14 +106,19 @@ const nopeStyle = useAnimatedStyle(() => ({
       );
 
     const onSwipe = event.velocityX > 0 ? onSwipeRight : onSwipeLeft;
-    onSwipe && runOnJS(onSwipe)(currentProfile);
+    onSwipe && runOnJS(onSwipe)();
     },
   });
 
   useEffect(() => {
     translateX.value = 0;
     setNextIndex(currentIndex+1);
-  },[currentIndex, translateX])
+  },[currentIndex, translateX]);
+
+  useEffect(() => {
+    setCurrentUser(currentProfile)
+  },[currentProfile]);
+
   return (
     <GestureHandlerRootView style={styles.root}>
       {nextProfile && (
@@ -124,7 +129,7 @@ const nopeStyle = useAnimatedStyle(() => ({
       </View>
       )}
 
-      {currentProfile && (
+      {currentProfile ? (
       <PanGestureHandler onGestureEvent={gestureHandler}>
         <Animated.View style={[styles.animatedCard, cardStyle]}>
           <Animated.Image source={LIKE} style={[styles.like, {left: 10}, likeStyle]} resizeMode='contain'></Animated.Image>
@@ -132,22 +137,28 @@ const nopeStyle = useAnimatedStyle(() => ({
           {renderItem({item: currentProfile})}
         </Animated.View>
       </PanGestureHandler>
-      )}
+      ) : (
+        <View>
+          <Text>Oppp, No more users</Text>
+        </View>
+      )
+      }
     </GestureHandlerRootView>
     );
 };
 
 const styles = StyleSheet.create({
   root: {
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
   },
   animatedCard: {
     width: '90%',
-    height: '75%',
+    height: '90%',
     justifyContent: 'center',
-    alignItems:'center'
+    alignItems:'center',
   },
   nextCardContainer: {
     ...StyleSheet.absoluteFillObject,

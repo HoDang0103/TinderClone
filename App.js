@@ -1,6 +1,6 @@
-import React, { Profiler, useState } from "react";
+import React, { Profiler, useState, useEffect } from "react";
 import 'react-native-gesture-handler';
-import {View, StyleSheet, SafeAreaView ,Text, Pressable} from 'react-native';
+import {View, StyleSheet, SafeAreaView ,Text, Pressable, ActivityIndicator} from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import Fontisto from 'react-native-vector-icons/Fontisto'
@@ -8,7 +8,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 
-import Amplify from 'aws-amplify';
+import Amplify, {DataStore, Hub} from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react-native';
 import config from './src/aws-exports'
 
@@ -16,7 +16,6 @@ import MatchSrceen from "./src/Srceens/MatchSrceen";
 import HomeScreen from './src/Srceens/HomeSrceen'
 import ProfileScreen from "./src/Srceens/ProfileScreen";
 
-Amplify.configure(config);
 
 // const jeff={
 //   name: 'Jeff',
@@ -24,11 +23,62 @@ Amplify.configure(config);
 //   image: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg'
 // }
 
+Amplify.configure(
+  {
+    ...config,
+    Analyties: {
+      disabled: true,
+    },
+  }
+);
+
+
 const App = () => {
   const [activeScreen, setActiveScreen] = useState('HOME');
+  const [isUserLoading, setUserLoading] = useState(true);
 
   const color = '#b5b5b5';
-  const activeColor= '#F76C6B'
+  const activeColor= '#F76C6B';
+
+  useEffect(() => {
+
+    const listener = Hub.listen("datastore", async hubData => {
+      const  { event, data } = hubData.payload;
+      if (event === 'modelSynced' && data?.model?.name === 'User') {
+        console.log('User Model has finish syncing');
+        setUserLoading(false);
+      }
+    });
+
+    // const listener = Hub.listen('datastore', async hubData => {
+    //   const {event, data} = hubData.payload;
+    //   if (event === 'modelSyned'  && data?.model?.name === 'User') {
+    //     console.log('User Model has finish syncing');
+    //   };
+    // });
+    
+    return () => listener();
+
+  }, []);
+
+  const renderPage = () => {
+    // if(isUserLoading) {
+    //   return <ActivityIndicator style={{flex: 1}} />;
+    // }
+
+    if(activeScreen === 'HOME'){
+      return <HomeScreen isUserLoading={isUserLoading}/>;
+    }
+    
+    if(activeScreen === 'PROFILE'){
+      return <ProfileScreen/>;
+    }
+
+    if(activeScreen === 'CHAT'){
+      return <MatchSrceen/>;
+    }
+
+  }
 
   return (
     <SafeAreaView style={styles.root}>
@@ -59,9 +109,8 @@ const App = () => {
               color={activeScreen === 'PROFILE' ? activeColor : color}/>
           </Pressable>
         </View>
-          {activeScreen === 'HOME' && <HomeScreen/>}
-          {activeScreen === 'CHAT' && <MatchSrceen/>}
-          {activeScreen === 'PROFILE' && <ProfileScreen/> }
+
+        {renderPage()}
       </GestureHandlerRootView>
     </SafeAreaView>
     );

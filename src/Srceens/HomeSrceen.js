@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {View, StyleSheet} from 'react-native';
 import Card from '../component/TinderCard'
 import users from '../../assets/data/users.js'
@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Entypo from 'react-native-vector-icons/Entypo'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import { DataStore, Auth } from "aws-amplify";
+import { User, Match } from "../models";
 
 
 import AnimatedStack from "../component/AnimatedStack";
@@ -18,20 +20,90 @@ import AnimatedStack from "../component/AnimatedStack";
 //   image: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/jeff.jpeg'
 // }
 
-const HomeSrceen = () => {
+const HomeSrceen = ({isUserLoading}) => {
+  const [users,setUsers] = useState([]);
+  const [curentUser, setCurrentUser] = useState(null);
+  const [me,setMe] = useState(null);
 
-const onSwipeLeft = (user) => {
-  console.warn("swipeleft: ", user.name)
-};
+  useEffect(() => {
+    const getCurrentUser = async () => {
+        const authUser = await Auth.currentAuthenticatedUser();
 
-const onSwipeRight = (user) => {
-  console.warn("swiperight: ", user.name)
-};
+        const dbUsers = await DataStore.query(
+            User,
+            u => u.sub('eq', authUser.attributes.sub),
+        );
+        if(!dbUsers || dbUsers.lenght === 0){
+            return;
+        }
+        setMe(dbUsers[0]);
+    };
+    getCurrentUser();
+  },[isUserLoading])
+
+  useEffect(() => {
+    // if(isUserLoading){
+    //   return;
+    // }
+    const fetchUsers = async () => {
+      const fetchedUsers = await DataStore.query(User);
+      setUsers(fetchedUsers);
+    }; 
+    fetchUsers();
+  }, [isUserLoading])
+
+  const onSwipeLeft = () => {
+    if(!curentUser || !me){
+      return;
+    }
+    console.warn("swipeleft: ", curentUser.name)
+  };
+
+  const onSwipeRight = async () => {
+    if(!curentUser || !me){
+      return;
+    }
+
+    const myMatches = await DataStore.query(Match, match => 
+      match.user1Id('eq', me.id).user2Id('eq',curentUser.id),
+    );
+    console.warn("myMatches: ",myMatches.length);
+
+    if(myMatches.length > 0){
+      console.warn('You already swiped right to this user');
+      return;
+    }
+
+    const hisMatches = await DataStore.query(Match, match => 
+      match.user1Id('eq', curentUser.id).user2Id('eq',me.id),
+    );
+    console.warn("hisMatches: ",hisMatches.length);
+    if(hisMatches.length > 0){
+      console.warn('Yay, this is a new match');
+      const hisMatch = hisMatches[0];
+      DataStore.save(
+        Match.copyOf(hisMatch, updated => (updated.isMatch = true)),
+      );
+      return;
+    }
+
+    console.warn('Seeding him a match request!');
+
+    const newMatch = new Match({
+      user1Id: me.id,
+      user2Id: curentUser.id,
+      isMatch: false
+    })
+    console.log(newMatch);
+    DataStore.save(newMatch);
+    console.log(users)
+  };
   return (
     <GestureHandlerRootView style={styles.pageContainer}>
      <AnimatedStack
      data={users}
      renderItem={(({item}) => <Card user={item} />)}
+     setCurrentUser={setCurrentUser}
      onSwipeLeft={onSwipeLeft}
      onSwipeRight={onSwipeRight}
      />

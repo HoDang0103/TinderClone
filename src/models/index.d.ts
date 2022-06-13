@@ -18,12 +18,13 @@ type UserMetaData = {
 
 export declare class Match {
   readonly id: string;
+  readonly user1Id: string;
   readonly User1?: User | null;
+  readonly user2Id: string;
   readonly User2?: User | null;
+  readonly isMatch: boolean;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
-  readonly matchUser1Id?: string | null;
-  readonly matchUser2Id?: string | null;
   constructor(init: ModelInit<Match, MatchMetaData>);
   static copyOf(source: Match, mutator: (draft: MutableModel<Match, MatchMetaData>) => MutableModel<Match, MatchMetaData> | void): Match;
 }
@@ -35,6 +36,7 @@ export declare class User {
   readonly bio: string;
   readonly gender: Genders | keyof typeof Genders;
   readonly lookingFor: Genders | keyof typeof Genders;
+  readonly sub: string;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<User, UserMetaData>);

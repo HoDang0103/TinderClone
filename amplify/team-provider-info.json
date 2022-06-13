@@ -10,6 +10,11 @@
       "StackName": "amplify-tinderclone-staging-41217",
       "StackId": "arn:aws:cloudformation:ap-southeast-1:338722145373:stack/amplify-tinderclone-staging-41217/ae7474e0-e93c-11ec-adb9-0a75e2bbbb06",
       "AmplifyAppId": "d1nklzgk0043s7"
+    },
+    "categories": {
+      "auth": {
+        "TinderClone": {}
+      }
     }
   }
 }
